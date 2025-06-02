@@ -11,21 +11,28 @@ Do data migration with NLP
 
 ## Features
 
++ LLM explore db schema
 + **LLM generate read-only SQL query** to preview the data
-+ User data preview confirmation
-+ LLM genernate Python for DB migration
++ LLM genernate Python code for DB migration
+  + Explicitly tell the LLM which package is available in the server
 + Migration preview (something like terraform plan, LIMIT 10)
 + Migration execution directly on python server
-+ (Optional Prio 1) Generate a migration report
++ (optional Prio 1) Dynamic DB connection
++ (optional Prio 1) Generate SQL model on migration to verify schema
 + (Optional Prio 1) LLM generate and deploy migration script to temporal
++ (Optional Prio 2) Enforce read-only query when preview
++ (Optional Prio 2) Generate a migration report
 + (Optional Prio 2) Data exploration
++ (Optional Prio 3) Reversion
 
-## Input constraint / assumptions
+## Input constraints / assumptions
 
-+ Start with 2 SQLite
 + Start with DB that supports SQL
 + The migration happen to data of small scale that can be done with 1 server
 + User know what data they want to migrate, no need for data exploration
++ Migration is done directly on the FastAPI server instead of a separate worker
++ Use Claude Desktop as the main UI and expose the fast API as MCP server
++ Let start with no SQLModel type safety
 
 ## System design
 
@@ -33,111 +40,128 @@ Do data migration with NLP
 
 ## API endpoints
 
-### Preview
-`/preview/{source DB}/{destination DB}`
-####  Description
+### get-connections
+
+#### Description
+
+return a list of available DB connections on the server
+
+#### Output
+
+```json
+[
+  {
+    id: "postgresql-1",
+    connectionURL: "postgresql://user:password@host:port/dbname",
+    type: "postgresql",
+  },
+  {
+    id: "sqlite-1",
+    connectionURL: "sqlite:///path/to/database.db",
+    type: "sqlite",
+  }
+]
+```
+
+### explore-schemas
+
+#### Description
+
+Explore schemas of both source and destination databases, return a list of tables and columns
+
+#### Input
+
+```json
+{
+  source: "postgresql-1",
+  query: "SELECT * FROM information_schema.tables WHERE table_schema = 'public'"
+}
+```
+
+### read
+
+#### Input
+
+```json
+{
+  source: "postgresql-1",
+  query: "SELECT * FROM users WHERE company = 'X' LIMIT 10"
+}
+```
+
+### preview
+
+#### Description
+
 Check the preview of the query, what will be change in the database
 
-### Input
+#### Input
 
 ```json
 {
-  "source" : "SELECT $column1, $column2 FROM $table",
-  "destination" : "INSERT INTO $table ($column1, $column2) "
-}
-```
-### Output
-```json
-{
-  "expected" : {
-    "source" : "
-    --- |column1 | column2 | 
-    --- |--------|---------|
-    --- | value1 | value2  |
-    --- | value3 | value4  |
-    --- |  ***   |   ***   |
-    --- | value3 | value4  |
-    --- |--------|----------
-    ",
-    "destination" : "
-    +++ |column1 | column2 | 
-    +++ |--------|---------|
-    +++ | value1 | value2  |
-    +++ | value3 | value4  |
-    +++ |  ***   |   ***   |
-    +++ | value3 | value4  |
-    +++ |--------|----------
-    
-    "
-  }
+  source_id : "postgresql-1",
+  destination_id : "sqlite-1",
+  "source_query" : "SELECT $column1, $column2 FROM $table",
+  "destination_query" : "INSERT INTO $table ($column1, $column2)"
 }
 ```
 
-### Apply
-`/apply/{source DB}/{destination DB}`
-+ Description
+#### Output
+
+``` text
++++ |column1 | column2 |
++++ |--------|---------|
++++ | value1 | value2  |
++++ | value3 | value4  |
++++ |  ***   |   ***   |
++++ | value3 | value4  |
++++ |--------|----------
+```
+
+### apply
+
+#### Description
 
 Apply the change in the database
 
 #### Input
+
 ```json
 {
-  source : "SELECT $column1, $column2 FROM $table",
-  destination : "INSERT INTO $table ($column1, $column2) "
-}
-```
-#### Output
-```json
-{
-  "info" : {
-    "success" : true,
-    "failed value" : []
-  }
-  "expected" : {
-    "source" : "
-    --- |column1 | column2 | 
-    --- |--------|---------|
-    --- | value1 | value2  |
-    --- | value3 | value4  |
-    --- |  ***   |   ***   |
-    --- | value3 | value4  |
-    --- |--------|----------
-    ",
-    "destination" : "
-    +++ |column1 | column2 | 
-    +++ |--------|---------|
-    +++ | value1 | value2  |
-    +++ | value3 | value4  |
-    +++ |  ***   |   ***   |
-    +++ | value3 | value4  |
-    +++ |--------|----------
-    
-    "
-  }
+  source_id : "postgresql-1",
+  destination_id : "sqlite-1",
+  "source_query" : "SELECT $column1, $column2 FROM $table",
+  "destination_query" : "INSERT INTO $table ($column1, $column2)"
 }
 ```
 
-### Revert
-`/revert`
+#### Output
+
+``` text
+"n rows updated"
+```
+
+### Revert (Optional)
 
 #### Description
 
 Revert the last state of the databases
+
 #### Input
+
 .stateDB folder from a S3 bucket
 
-+ Output
+#### Output
+
 ```json
 {
   "info" : "success"
 }
 ```
 
-`<HTTP verb> <path>`
+### CRUD Message endpoint
 
-+ Description
-+ Input
-+ Output
+### CRUD Conversation endpoint
 
 ## Database design + type interface
 
@@ -149,13 +173,12 @@ Revert the last state of the databases
 
 ## Execution Plan / Tasks
 
-+ [ ] Build API endpoint
-+ [ ] Define BaseModel Class for connector
-+ [ ] Add 2 sql connector
-+ [ ] Add apply endpoint with the 2 connector 
-+ [ ] Test the endpoint
-+ [ ] Add a preview endpoint
-+ [ ] Add a S3 bucket to dumps/load data
-+ [ ] Add more connector
-+ [ ] First tasks
+### Must
 
++ [ ] Connections tool
++ [ ] Explore schemas tool
++ [ ] Python code template for migration
++ [ ] Preview tools
++ [ ] Apply tools
+
+### Optional
