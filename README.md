@@ -36,7 +36,7 @@ Do data migration with NLP
 
 ## System design
 
-![1st architecture](/documentation/architecture.png)
+![1st architecture](/documentation/mcp-archi.png)
 
 ## API endpoints
 
