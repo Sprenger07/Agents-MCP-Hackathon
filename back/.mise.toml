@@ -19,5 +19,9 @@ run = "uv pip install -r requirements.txt"
 description = "freeze to requirements.txt"
 run = "uv pip freeze > requirements.txt"
 
+[tasks.start]
+description = "start MCP server"
+run = "fastmcp run server.py"
+
 [settings]
 python.uv_venv_auto = true
