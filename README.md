@@ -175,10 +175,11 @@ Revert the last state of the databases
 
 ### Must
 
-+ [ ] Connections tool
-+ [ ] Explore schemas tool
-+ [ ] Python code template for migration
-+ [ ] Preview tools
-+ [ ] Apply tools
++ [ ] Connections tool (Leo)
++ [ ] Explore schemas tool (Leo)
++ [ ] Read tool (Tung)
++ [ ] Python code template for migration (Leo)
++ [ ] Preview tools (Tung)
++ [ ] Apply tools (Tung)
 
 ### Optional
