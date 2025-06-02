@@ -124,7 +124,7 @@ Apply the change in the database
 
 Revert the last state of the databases
 #### Input
-.stateDB folder
+.stateDB folder from a S3 bucket
 
 + Output
 ```json
@@ -149,4 +149,13 @@ Revert the last state of the databases
 
 ## Execution Plan / Tasks
 
++ [ ] Build API endpoint
++ [ ] Define BaseModel Class for connector
++ [ ] Add 2 sql connector
++ [ ] Add apply endpoint with the 2 connector 
++ [ ] Test the endpoint
++ [ ] Add a preview endpoint
++ [ ] Add a S3 bucket to dumps/load data
++ [ ] Add more connector
 + [ ] First tasks
+
