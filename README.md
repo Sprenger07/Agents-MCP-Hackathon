@@ -33,6 +33,106 @@ Do data migration with NLP
 
 ## API endpoints
 
+### Preview
+`/preview/{source DB}/{destination DB}`
+####  Description
+Check the preview of the query, what will be change in the database
+
+### Input
+
+```json
+{
+  "source" : "SELECT $column1, $column2 FROM $table",
+  "destination" : "INSERT INTO $table ($column1, $column2) "
+}
+```
+### Output
+```json
+{
+  "expected" : {
+    "source" : "
+    --- |column1 | column2 | 
+    --- |--------|---------|
+    --- | value1 | value2  |
+    --- | value3 | value4  |
+    --- |  ***   |   ***   |
+    --- | value3 | value4  |
+    --- |--------|----------
+    ",
+    "destination" : "
+    +++ |column1 | column2 | 
+    +++ |--------|---------|
+    +++ | value1 | value2  |
+    +++ | value3 | value4  |
+    +++ |  ***   |   ***   |
+    +++ | value3 | value4  |
+    +++ |--------|----------
+    
+    "
+  }
+}
+```
+
+### Apply
+`/apply/{source DB}/{destination DB}`
++ Description
+
+Apply the change in the database
+
+#### Input
+```json
+{
+  source : "SELECT $column1, $column2 FROM $table",
+  destination : "INSERT INTO $table ($column1, $column2) "
+}
+```
+#### Output
+```json
+{
+  "info" : {
+    "success" : true,
+    "failed value" : []
+  }
+  "expected" : {
+    "source" : "
+    --- |column1 | column2 | 
+    --- |--------|---------|
+    --- | value1 | value2  |
+    --- | value3 | value4  |
+    --- |  ***   |   ***   |
+    --- | value3 | value4  |
+    --- |--------|----------
+    ",
+    "destination" : "
+    +++ |column1 | column2 | 
+    +++ |--------|---------|
+    +++ | value1 | value2  |
+    +++ | value3 | value4  |
+    +++ |  ***   |   ***   |
+    +++ | value3 | value4  |
+    +++ |--------|----------
+    
+    "
+  }
+}
+```
+
+### Revert
+`/revert`
+
+#### Description
+
+Revert the last state of the databases
+#### Input
+.stateDB folder
+
++ Output
+```json
+{
+  "info" : "success"
+}
+```
+
 `<HTTP verb> <path>`
 
 + Description
