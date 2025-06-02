@@ -29,7 +29,7 @@ Do data migration with NLP
 
 ## System design
 
-![1st architecture](architecture.png)
+![1st architecture](/documentation/architecture.png)
 
 ## API endpoints
 
