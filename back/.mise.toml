@@ -21,7 +21,7 @@ run = "uv pip freeze > requirements.txt"
 
 [tasks.start]
 description = "start MCP server"
-run = "fastmcp run server.py"
+run = "fastmcp run server.py --transport streamable-http"
 
 [settings]
 python.uv_venv_auto = true
