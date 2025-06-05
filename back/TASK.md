@@ -1,3 +1,3 @@
 # TASK
 
-+ [ ] create a table for storing database connection 
++ [x] create a table for storing database connection 
