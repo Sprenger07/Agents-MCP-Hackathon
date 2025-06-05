@@ -29,3 +29,5 @@ typing-extensions==4.14.0
 typing-inspection==0.4.1
 uvicorn==0.34.3
 websockets==15.0.1
+sqlmodel==0.0.16
+sqlalchemy==2.0.30
