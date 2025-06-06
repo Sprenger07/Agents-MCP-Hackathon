@@ -19,7 +19,7 @@ class Schema:
     columns: list[Column]
 
 
-class CommentService:
+class ConnectionService:
     @staticmethod
     def list_table(connection_id: int):
         """

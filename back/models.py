@@ -1,7 +1,11 @@
 from sqlmodel import SQLModel, Field
 from sqlalchemy import create_engine
+import os
 
-engine = create_engine("sqlite:///database.db")
+if os.environ.get("ENV") == "production":
+    engine = create_engine("sqlite:///database.db")
+else:
+    engine = create_engine("sqlite:///database_local.db")
 
 
 def init_db():
