@@ -77,7 +77,7 @@ class CommentService:
             return Schema(table=table_name, columns=columns)
 
     @staticmethod
-    def read(connection_id: int, query: str):
+    def read(connection_id: int, query: str) -> list[dict] :
         parsed = sqlparse.parse(query)
         if not parsed or parsed[0].get_type() != "SELECT":
             raise ValueError("Only SELECT (readonly) queries are allowed.")
