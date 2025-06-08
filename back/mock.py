@@ -27,9 +27,9 @@ def add_mock_connections():
 
 
 DB_A_ENGINE = create_engine(DB_A_URL, echo=True)
+DB_B_ENGINE = create_engine(DB_B_URL, echo=True)
 
-
-def init_employee_table(connection: Engine):
+def migrate_employee_table(connection: Engine):
     """
     create employee table in the target DB if it does not exist
     and add mock data if the table is empty.
@@ -37,7 +37,12 @@ def init_employee_table(connection: Engine):
     Args:
         connection: sql engine to connect to the target DB
     """
-    SQLModel.metadata.create_all(connection, tables=[Employee.__table__])
+    SQLModel.metadata.create_all(
+        connection, tables=[Employee.__table__]
+    )
+
+
+def create_mock_data(connection: Engine):
     with Session(connection) as session:
         if not session.exec(select(Employee)).first():
             session.add_all(
@@ -48,26 +53,50 @@ def init_employee_table(connection: Engine):
                         department="Engineering",
                     ),
                     Employee(
-                        name="Bob Smith", company="InnovateX", department="Marketing"
+                        name="Bob Smith",
+                        company="InnovateX",
+                        department="Marketing",
                     ),
                     Employee(
-                        name="Charlie Brown", company="BuildIt", department="Sales"
+                        name="Charlie Brown",
+                        company="BuildIt",
+                        department="Sales",
                     ),
                     Employee(
-                        name="Dana White", company="TechCorp", department="Engineering"
+                        name="Dana White",
+                        company="TechCorp",
+                        department="Engineering",
                     ),
                     Employee(
-                        name="Eve Black", company="InnovateX", department="Finance"
-                    ),
-                    Employee(name="Frank Green", company="BuildIt", department="HR"),
-                    Employee(
-                        name="Grace Adams", company="TechCorp", department="Operations"
+                        name="Eve Black",
+                        company="InnovateX",
+                        department="Finance",
                     ),
                     Employee(
-                        name="Hank Davis", company="InnovateX", department="Engineering"
+                        name="Frank Green",
+                        company="BuildIt",
+                        department="HR",
                     ),
-                    Employee(name="Ivy Lee", company="BuildIt", department="Logistics"),
-                    Employee(name="Jack Brown", company="TechCorp", department="Sales"),
+                    Employee(
+                        name="Grace Adams",
+                        company="TechCorp",
+                        department="Operations",
+                    ),
+                    Employee(
+                        name="Hank Davis",
+                        company="InnovateX",
+                        department="Engineering",
+                    ),
+                    Employee(
+                        name="Ivy Lee",
+                        company="BuildIt",
+                        department="Logistics",
+                    ),
+                    Employee(
+                        name="Jack Brown",
+                        company="TechCorp",
+                        department="Sales",
+                    ),
                 ]
             )
             session.commit()
@@ -81,5 +110,6 @@ class Employee(SQLModel, table=True):
 
 
 if __name__ == "__main__":
-    add_mock_connections()
-    init_employee_table(DB_A_ENGINE)
+    # add_mock_connections()
+    migrate_employee_table(DB_B_ENGINE)
+    # create_mock_data(DB_A_ENGINE)
